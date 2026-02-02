@@ -25,6 +25,7 @@ A full-stack application for managing knowledge points in a hierarchical graph s
     NEO4J_URI=bolt://localhost:7687
     NEO4J_USERNAME=neo4j
     NEO4J_PASSWORD=password
+    GEMINI_API_KEY=your_gemini_api_key
     ```
 
 ## Running the Application
@@ -45,6 +46,7 @@ A full-stack application for managing knowledge points in a hierarchical graph s
     -   POST /points: Create new points.
     -   PUT /points: Update existing points.
     -   DELETE /points/<id>: Delete points and their sub-trees.
+    -   POST /points/generate: Generate knowledge expansion using AI (Gemini).
 -   **Frontend**: Single Page Application.
     -   Dynamic Tree View (Left Sidebar).
     -   Detail/Edit Form (Right Panel).

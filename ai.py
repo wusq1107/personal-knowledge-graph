@@ -11,7 +11,7 @@ def generate_structure_with_ai(title, description):
         raise ValueError("GEMINI_API_KEY missing")
 
     genai.configure(api_key=api_key)
-    model = genai.GenerativeModel("gemini-1.5-flash")
+    model = genai.GenerativeModel("gemini-3-pro-preview")
 
     # Construct the prompt
     prompt = f"""

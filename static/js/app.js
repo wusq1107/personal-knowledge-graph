@@ -82,7 +82,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
+            saveGenerateBtn.disabled = true;
+            saveGenerateBtn.textContent = 'Generating...';
             showMsg('Generating content, please wait...', 'success');
+            
             const response = await fetch('/points/generate', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -92,10 +95,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 window.location.reload();
             } else {
                 showMsg('Failed to generate content', 'error');
+                saveGenerateBtn.disabled = false;
+                saveGenerateBtn.textContent = 'Save and Generate';
             }
         } catch (error) {
             console.error('Error generating knowledge:', error);
             showMsg('Error generating knowledge', 'error');
+            saveGenerateBtn.disabled = false;
+            saveGenerateBtn.textContent = 'Save and Generate';
         }
     });
 

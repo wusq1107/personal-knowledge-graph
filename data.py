@@ -58,7 +58,8 @@ def update_point(point_id, props):
 def delete_point(point_id):
     query = """
     MATCH (n:KnowledgePoint {id: $point_id})
-    DETACH DELETE n
+    OPTIONAL MATCH (n)-[:HAS_CHILD*]->(m)
+    DETACH DELETE n, m
     """
     with get_session() as session:
         session.run(query, point_id=point_id)
