@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Knowledge Management</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
+    <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h3>Knowledge</h3>
+                <button id="add-root-btn" class="btn btn-primary">Add Root Item</button>
+            </div>
+            <div id="tree-container" class="tree-container">
+                <!-- Tree will be rendered here -->
+            </div>
+        </div>
+        <div class="content">
+            <div class="form-container" id="form-container" style="display: none;">
+                <div class="form-header">
+                    <h2 id="form-title">Item Details</h2>
+                    <button id="edit-btn" class="btn btn-secondary" style="display: none;">Edit</button>
+                </div>
+                <form id="point-form">
+                    <input type="hidden" id="point-id">
+                    <div class="form-group">
+                        <label for="point-title">Title</label>
+                        <input type="text" id="point-title" name="title" required disabled>
+                    </div>
+                    <div class="form-group">
+                        <label for="point-desc">Description (Markdown)</label>
+                        <textarea id="point-desc" name="description"></textarea>
+                        <div id="point-desc-preview" class="markdown-body" style="display: none;"></div>
+                    </div>
+                    <!-- Dynamic attributes can be added here -->
+                    <div id="dynamic-fields"></div>
+                    
+                    <div class="form-actions" id="form-actions" style="display: none;">
+                        <button type="submit" class="btn btn-success">Save</button>
+                        <button type="button" id="save-generate-btn" class="btn btn-primary">Save and Generate</button>
+                        <button type="button" id="cancel-btn" class="btn btn-default">Cancel</button>
+                    </div>
+                </form>
+            </div>
+            <div class="empty-state" id="empty-state">
+                Select an item to view details
+            </div>
+        </div>
+    </div>
+    
+    <!-- Context Menu template or logic in JS -->
+    
+    <script src="/static/js/app.js"></script>
+    <div id="msg-container" class="msg-container"></div>
+</body>
+</html>
