@@ -54,3 +54,29 @@ def generate_structure_with_ai(title, description):
         return json.loads(answer.strip())
     except Exception as e:
         raise RuntimeError(f'API Error: {str(e)}')
+
+def generate_content_with_ai(title, description):
+    api_key = os.getenv("GEMINI_API_KEY")
+    if not api_key:
+        raise ValueError("GEMINI_API_KEY missing")
+
+    genai.configure(api_key=api_key)
+    model = genai.GenerativeModel("gemini-3-pro-preview")
+
+    prompt = f"""
+    Expand on the following knowledge item with a detailed description. 
+    The original title and current description are provided below.
+    If there is already a description, build upon it and provide NEW information. 
+    Format the output in Markdown.
+    
+    Title: {title}
+    Current Description: {description}
+    
+    Provide only the detailed information.
+    """
+
+    try:
+        response = model.generate_content(prompt)
+        return response.text.strip()
+    except Exception as e:
+        raise RuntimeError(f'API Error: {str(e)}')

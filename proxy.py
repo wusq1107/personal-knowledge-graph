@@ -65,3 +65,32 @@ def generate_structure_with_ai(title, description):
         return json.loads(answer.strip())
     except Exception as e:
         raise RuntimeError(f'API Error: {str(e)}')
+
+def generate_content_with_ai(title, description):
+    api_key = os.getenv("OPENAI_API_KEY")
+    if not api_key:
+        raise ValueError("API Key missing")
+
+    prompt = f"""
+    Expand on the following knowledge item with a detailed description. 
+    The original title and current description are provided below.
+    If there is already a description, build upon it and provide NEW information. 
+    Format the output in Markdown.
+    
+    Title: {title}
+    Current Description: {description}
+    
+    Provide only the detailed information.
+    """
+
+    url = "https://yibuapi.com/v1"
+    client = openai.OpenAI(api_key=api_key, base_url=url)
+    
+    try:
+        response = client.chat.completions.create(
+            model="gemini-3-pro-preview",
+            messages=[{"role": "user", "content": prompt}]
+        )
+        return response.choices[0].message.content.strip()
+    except Exception as e:
+        raise RuntimeError(f'API Error: {str(e)}')

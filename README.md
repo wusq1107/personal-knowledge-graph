@@ -46,11 +46,14 @@ A full-stack application for managing knowledge points in a hierarchical graph s
     -   POST /points: Create new points.
     -   PUT /points: Update existing points.
     -   DELETE /points/<id>: Delete points and their sub-trees.
+    -   GET /points/graph/<id>: Fetch graph data (nodes and links) for a node and its descendants.
     -   POST /points/generate: Generate knowledge expansion using AI (Gemini).
 -   **Frontend**: Single Page Application.
     -   Dynamic Tree View (Left Sidebar).
     -   Detail/Edit Form (Right Panel).
-    -   Contextual Actions (Add Child, Delete).
+    -   Contextual Actions (Add Child, Delete, View Graph).
+    -   Interactive Graph Visualization (using vis-network).
+    -   Quick View: Click a node in the graph to see its details and description immediately.
 
 ## Data Structure
 

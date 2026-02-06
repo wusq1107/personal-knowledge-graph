@@ -1,7 +1,7 @@
 import os
 from flask import Flask, render_template, request, jsonify
-from data import get_root_points, get_point_children, add_point, update_point, delete_point, save_nested_items, get_session
-from ai import generate_structure_with_ai
+from data import get_root_points, get_point_children, add_point, update_point, delete_point, save_nested_items, get_session, get_graph_data
+from proxy import generate_structure_with_ai, generate_content_with_ai
 
 app = Flask(__name__)
 
@@ -69,6 +69,24 @@ def generate_points():
         return jsonify({"status": "success"})
     except Exception as e:
         print(f"Error in generation: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/points/graph/<point_id>', methods=['GET'])
+def get_point_graph(point_id):
+    data = get_graph_data(point_id)
+    return jsonify(data)
+
+@app.route('/generate_content', methods=['POST'])
+def generate_content():
+    data = request.json
+    title = data.get('title')
+    description = data.get('description')
+    
+    try:
+        content = generate_content_with_ai(title, description)
+        return jsonify({"content": content})
+    except Exception as e:
+        print(f"Error in generating content: {e}")
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':

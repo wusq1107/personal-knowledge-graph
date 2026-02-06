@@ -100,6 +100,119 @@ body, html {
     margin: 0;
 }
 
+/* Modal styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 5% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    height: 80%;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+}
+
+.close-btn {
+    color: #aaa;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close-btn:hover {
+    color: black;
+}
+
+/* Node Popup Styles */
+.sub-modal {
+    z-index: 1100; /* Higher than graph modal */
+}
+
+.popup-content {
+    margin: 5vh auto;
+    width: fit-content;
+    min-width: 320px;
+    max-width: 90%;
+    height: auto;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 50px rgba(0,0,0,0.4);
+    border: 1px solid #ddd;
+    padding: 30px;
+    border-radius: 12px;
+}
+
+.popup-content .markdown-body {
+    width: 100%;
+    margin: 0;
+    border: none;
+    background-color: transparent;
+    padding: 0;
+    min-height: auto;
+}
+
+.close-popup {
+    color: #aaa;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close-popup:hover {
+    color: black;
+}
+
+/* Confirm Dialog Styles */
+.confirm-content {
+    margin: 20% auto;
+    width: 300px;
+    height: auto;
+    padding: 15px;
+    text-align: center;
+}
+
+.modal-body {
+    padding: 15px 0;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    border-top: 1px solid #eee;
+    padding-top: 15px;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    color: white;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+}
+
 .form-header {
     display: flex;
     justify-content: space-between;
@@ -148,6 +261,7 @@ body, html {
 .btn-primary { background-color: #007bff; color: white; }
 .btn-secondary { background-color: #6c757d; color: white; }
 .btn-success { background-color: #28a745; color: white; }
+.btn-info { background-color: #17a2b8; color: white; }
 .btn-danger { background-color: #dc3545; color: white; }
 .btn-default { background-color: #f8f9fa; border: 1px solid #ddd; }
 

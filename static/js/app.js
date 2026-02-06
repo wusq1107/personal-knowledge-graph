@@ -10,10 +10,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const editBtn = document.getElementById('edit-btn');
     const cancelBtn = document.getElementById('cancel-btn');
     const saveGenerateBtn = document.getElementById('save-generate-btn');
+    const generateContentBtn = document.getElementById('generate-content-btn');
     const formActions = document.getElementById('form-actions');
     const addRootBtn = document.getElementById('add-root-btn');
     const formTitle = document.getElementById('form-title');
     const msgContainer = document.getElementById('msg-container');
+
+    // Confirm Modal Elements
+    const confirmModal = document.getElementById('confirm-modal');
+    const confirmYesBtn = document.getElementById('confirm-yes');
+    const confirmNoBtn = document.getElementById('confirm-no');
+    let onConfirmAction = null;
+
+    confirmNoBtn.addEventListener('click', () => {
+        confirmModal.style.display = 'none';
+        onConfirmAction = null;
+    });
+
+    confirmYesBtn.addEventListener('click', () => {
+        if (onConfirmAction) onConfirmAction();
+        confirmModal.style.display = 'none';
+        onConfirmAction = null;
+    });
 
     const simplemde = new SimpleMDE({ element: pointDescInput });
 
@@ -106,6 +124,49 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    generateContentBtn.addEventListener('click', async () => {
+        const title = pointTitleInput.value;
+        const currentDescription = simplemde.value();
+
+        if (!title) {
+            showMsg('Please enter a title first', 'error');
+            return;
+        }
+
+        try {
+            generateContentBtn.disabled = true;
+            generateContentBtn.textContent = 'Generating Content...';
+            showMsg('Generating content, please wait...', 'success');
+
+            const response = await fetch('/generate_content', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title, description: currentDescription })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                const newContent = data.content;
+                
+                // Append content to description
+                const updatedDescription = currentDescription ? 
+                    currentDescription + "\n\n" + newContent : 
+                    newContent;
+                
+                simplemde.value(updatedDescription);
+                showMsg('Content generated and appended', 'success');
+            } else {
+                showMsg('Failed to generate content', 'error');
+            }
+        } catch (error) {
+            console.error('Error generating content:', error);
+            showMsg('Error generating content', 'error');
+        } finally {
+            generateContentBtn.disabled = false;
+            generateContentBtn.textContent = 'Generate Content';
+        }
+    });
+
     async function loadRootPoints() {
         try {
             const response = await fetch('/points');
@@ -130,6 +191,7 @@ document.addEventListener('DOMContentLoaded', () => {
         content.innerHTML = `
             <span class="node-title">${point.title || 'Unnamed Item'}</span>
             <div class="node-actions">
+                <button class="node-action-btn view-graph-btn" title="View Graph"><i class="fas fa-project-diagram"></i></button>
                 <button class="node-action-btn add-child-btn" title="Add Child">+</button>
                 <button class="node-action-btn delete-btn" title="Delete">🗑️</button>
             </div>
@@ -137,8 +199,14 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Handle selection
         content.addEventListener('click', (e) => {
-            if (e.target.tagName === 'BUTTON') return; // Ignore button clicks
+            if (e.target.closest('button')) return; // Ignore button clicks
             selectNode(point, content);
+        });
+
+        const viewGraphBtn = content.querySelector('.view-graph-btn');
+        viewGraphBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            showGraph(point.id);
         });
 
         const addChildBtn = content.querySelector('.add-child-btn');
@@ -150,9 +218,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const deleteBtn = content.querySelector('.delete-btn');
         deleteBtn.addEventListener('click', (e) => {
             e.stopPropagation();
-            if(confirm('Are you sure you want to delete this item?')) {
-                deletePoint(point.id);
-            }
+            onConfirmAction = () => deletePoint(point.id);
+            confirmModal.style.display = 'block';
         });
 
         div.appendChild(content);
@@ -349,6 +416,130 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Remove on click
         msg.addEventListener('click', () => msg.remove());
+    }
+
+    // Graph View Logic
+    const graphModal = document.getElementById('graph-modal');
+    const nodePopup = document.getElementById('node-popup');
+    const closeBtn = document.querySelector('.close-btn');
+    const closePopupBtn = document.querySelector('.close-popup');
+    const graphContainer = document.getElementById('graph-container');
+    let network = null;
+
+    if (closeBtn) {
+        closeBtn.onclick = () => {
+            graphModal.style.display = "none";
+            nodePopup.style.display = "none";
+            confirmModal.style.display = "none";
+            onConfirmAction = null;
+        };
+    }
+
+    if (closePopupBtn) {
+        closePopupBtn.onclick = () => {
+            nodePopup.style.display = "none";
+        };
+    }
+
+    window.onclick = (event) => {
+        if (event.target == graphModal) {
+            graphModal.style.display = "none";
+            nodePopup.style.display = "none";
+        }
+        if (event.target == nodePopup) {
+            nodePopup.style.display = "none";
+        }
+        if (event.target == confirmModal) {
+            confirmModal.style.display = "none";
+            onConfirmAction = null;
+        }
+    };
+
+    async function showGraph(pointId) {
+        if (typeof vis === 'undefined') {
+            showMsg('Graph library not loaded. Please check your internet connection.', 'error');
+            return;
+        }
+        try {
+            const response = await fetch(`/points/graph/${pointId}`);
+            const data = await response.json();
+            
+            graphModal.style.display = "block";
+            
+            // Map for quick lookup of descriptions
+            const nodeDetailsMap = {};
+            data.nodes.forEach(n => {
+                nodeDetailsMap[n.id] = {
+                    title: n.title,
+                    description: n.description
+                };
+            });
+
+            const nodes = new vis.DataSet(data.nodes.map(n => {
+                // Determine size based on level
+                const baseSize = 30;
+                const levelDecrease = 6;
+                const minSize = 12;
+                const nodeSize = Math.max(minSize, baseSize - (n.level * levelDecrease));
+
+                return {
+                    id: n.id,
+                    label: n.title,
+                    title: n.title,
+                    size: nodeSize
+                };
+            }));
+
+            const edges = new vis.DataSet(data.links.map(l => ({
+                from: l.source,
+                to: l.target,
+                arrows: 'to'
+            })));
+
+            const container = document.getElementById('graph-container');
+            const popupTitle = document.getElementById('popup-title');
+            const popupDesc = document.getElementById('popup-desc');
+
+            const graphData = { nodes, edges };
+            const options = {
+                nodes: {
+                    shape: 'dot',
+                    font: { size: 12 }
+                },
+                edges: {
+                    color: '#848484',
+                    width: 1
+                },
+                physics: {
+                    barnesHut: {
+                        gravitationalConstant: -2000,
+                        centralGravity: 0.3,
+                        springLength: 95,
+                        springConstant: 0.04,
+                        damping: 0.09,
+                        avoidOverlap: 0
+                    }
+                }
+            };
+            
+            if (network) network.destroy();
+            network = new vis.Network(container, graphData, options);
+
+            // Handle node selection/click
+            network.on('selectNode', (params) => {
+                const selectedId = params.nodes[0];
+                const node = nodeDetailsMap[selectedId];
+                if (node) {
+                    popupTitle.textContent = node.title || 'No Title';
+                    popupDesc.innerHTML = simplemde.markdown(node.description || '*No description available*');
+                    nodePopup.style.display = 'block';
+                }
+            });
+
+        } catch (error) {
+            console.error('Error loading graph:', error);
+            showMsg('Error loading graph data', 'error');
+        }
     }
 
     // Close click anywhere

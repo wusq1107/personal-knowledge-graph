@@ -86,3 +86,30 @@ def save_nested_items(session, data, parent_id=None):
         save_nested_items(session, child, point_id)
     
     return point_id
+
+def get_graph_data(point_id):
+    query = """
+    MATCH (p:KnowledgePoint {id: $point_id})
+    OPTIONAL MATCH path = (p)-[:HAS_CHILD*]->(c:KnowledgePoint)
+    WITH p, c, length(path) as level
+    WITH collect(distinct {node: c, level: level}) as children, p
+    WITH [{node: p, level: 0}] + children as allNodesWithLevel
+    UNWIND allNodesWithLevel as item
+    WITH item.node as n, item.level as level, [x in allNodesWithLevel | x.node] as nodesList
+    OPTIONAL MATCH (n)-[:HAS_CHILD]->(m:KnowledgePoint)
+    WHERE m IN nodesList
+    RETURN 
+        collect(distinct {id: n.id, title: n.title, description: n.description, level: level}) as nodes,
+        collect(distinct {source: n.id, target: m.id}) as links
+    """
+    with get_session() as session:
+        result = session.run(query, point_id=point_id)
+        record = result.single()
+        if not record:
+            return {"nodes": [], "links": []}
+        
+        nodes = record["nodes"]
+        links = record["links"]
+        # Filter out empty links
+        links = [l for l in links if l.get('source') is not None and l.get('target') is not None]
+        return {"nodes": nodes, "links": links}

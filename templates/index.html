@@ -42,6 +42,7 @@
                     
                     <div class="form-actions" id="form-actions" style="display: none;">
                         <button type="submit" class="btn btn-success">Save</button>
+                        <button type="button" id="generate-content-btn" class="btn btn-info">Generate Content</button>
                         <button type="button" id="save-generate-btn" class="btn btn-primary">Save and Generate</button>
                         <button type="button" id="cancel-btn" class="btn btn-default">Cancel</button>
                     </div>
@@ -55,7 +56,46 @@
     
     <!-- Context Menu template or logic in JS -->
     
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/standalone/umd/vis-network.min.js"></script>
     <script src="/static/js/app.js"></script>
     <div id="msg-container" class="msg-container"></div>
+
+    <!-- Graph Modal -->
+    <div id="graph-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Graph View</h2>
+                <span class="close-btn">&times;</span>
+            </div>
+            <div id="graph-container" style="height: 600px; width: 100%;"></div>
+        </div>
+    </div>
+
+    <!-- Node Detail Popup Modal -->
+    <div id="node-popup" class="modal sub-modal">
+        <div class="modal-content popup-content">
+            <div class="modal-header">
+                <h3 id="popup-title"></h3>
+                <span class="close-popup">&times;</span>
+            </div>
+            <div id="popup-desc" class="markdown-body"></div>
+        </div>
+    </div>
+
+    <!-- Confirm Dialog Modal -->
+    <div id="confirm-modal" class="modal sub-modal">
+        <div class="modal-content confirm-content">
+            <div class="modal-header">
+                <h3>Confirm Action</h3>
+            </div>
+            <div class="modal-body">
+                <p id="confirm-msg">Are you sure you want to delete this item?</p>
+            </div>
+            <div class="modal-footer">
+                <button id="confirm-yes" class="btn btn-danger">Delete</button>
+                <button id="confirm-no" class="btn btn-default">Cancel</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
